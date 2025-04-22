@@ -1,0 +1,82 @@
+openapi: 3.0.3
+info:
+  title: Services Extensions Samples REST Endpoint
+  description: >-
+    API specification for the service extension samples written in Nodejs
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+externalDocs:
+  description: Choreo
+  url: https://choreo.dev
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: service-extensions-samples
+    description: Service extension samples API
+
+paths:
+  /:
+    get:
+      summary: Root endpoint
+      description: Returns a basic greeting message.
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Hello from the home endpoint!
+
+  /validate-geo-region:
+    post:
+      summary: Validate Geo Region
+      description: Extracts IP from `additionalHeaders` and validates if it’s from an allowed country.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: object
+                  properties:
+                    request:
+                      type: object
+                      properties:
+                        additionalHeaders:
+                          type: object
+                          additionalProperties:
+                            type: array
+                            items:
+                              type: string
+              example:
+                event:
+                  request:
+                    additionalHeaders:
+                      x-client-source-ip:
+                        - "203.0.113.10"
+      responses:
+        '200':
+          description: Result of the geo validation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  actionStatus:
+                    type: string
+                    enum: [SUCCESS, FAILED]
+                  failureReason:
+                    type: string
+                    nullable: true
+                  failureDescription:
+                    type: string
+                    nullable: true
+                example:
+                  actionStatus: FAILED
+                  failureReason: geo_request
+                  failureDescription: "Access token issuance is blocked from your region: United States"
