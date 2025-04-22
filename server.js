@@ -22,18 +22,20 @@ app.post('/validate-geo-region', (req, res) => {
   const allowedCountries = ['United States'];
   let clientIp = '101.2.176.0'; // Default fallback IP
 
-  // Extract IP address from custom header
-  if (additionalHeaders && typeof additionalHeaders === 'object') {
-    const ipHeader = additionalHeaders['x-client-source-ip'];
+// Extract IP address from custom header array
+  if (Array.isArray(additionalHeaders)) {
+    const ipHeaderEntry = additionalHeaders.find(
+        (header) => header.name?.toLowerCase() === 'x-client-source-ip'
+    );
 
-    if (Array.isArray(ipHeader) && ipHeader.length > 0) {
-      clientIp = ipHeader[0];
+    if (ipHeaderEntry && Array.isArray(ipHeaderEntry.value) && ipHeaderEntry.value.length > 0) {
+      clientIp = ipHeaderEntry.value[0];
       console.log('Extracted client IP:', clientIp);
     } else {
       console.warn('x-client-source-ip header is missing or empty.');
     }
   } else {
-    console.warn('Invalid or missing additionalHeaders in request.');
+    console.warn('additionalHeaders is not an array.');
   }
 
   // Handle failure if default IP was not overridden
